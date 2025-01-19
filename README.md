@@ -30,7 +30,7 @@ Example:
 #include "mike.hpp"
 
 math::mat4 camera(const float p_translate, const math::vec2& p_rotate) {
-    math::mat4 projection = math::mat4::Perspective(math::HALF_PI, 4.0f / 3.0f, 1.0f, 100.f);
+    math::mat4 projection = math::mat4::Perspective(math::HALF_PI, 4.0f / 3.0f, 1.0f, 100.0f);
 
     math::mat4 view = math::mat4::Translation(0.0f, 0.0f, -p_translate);
     view = view * math::mat4::RotationY(p_rotate.y);
