@@ -3,7 +3,7 @@
 
 #include <iomanip>
 
-#include "scalarFloat.hpp"
+#include "../scalarFloat.hpp"
 
 namespace math {
 
@@ -133,13 +133,13 @@ namespace math {
         }
 
         MatrixFloat2x2 adjugate() const {
-            float array[4] = {m_array[3], m_array[2], m_array[1], m_array[0]};
+            const float array[4] = {m_array[3], m_array[2], m_array[1], m_array[0]};
             return MatrixFloat2x2(array).transpose();
         }
 
         MatrixFloat2x2 inverse() const {
             const float d = determinant();
-            if (abs(d) <= FLT_EPSILON)
+            if (isZero(d))
                 throw std::overflow_error("Divide by zero exception!");
             return adjugate()/d;
         }
@@ -175,13 +175,13 @@ namespace math {
 
     inline bool operator==(const MatrixFloat2x2& p_matrixA, const MatrixFloat2x2& p_matrixB) {
         for (size_t i_index = 0; i_index < 4; i_index++)
-            if (abs(p_matrixA[i_index] - p_matrixB[i_index]) > FLT_EPSILON) return false;
+            if (!isZero(p_matrixA[i_index] - p_matrixB[i_index])) return false;
         return true;
     }
 
     inline bool operator!=(const MatrixFloat2x2& p_matrixA, const MatrixFloat2x2& p_matrixB) {
         for (size_t i_index = 0; i_index < 4; i_index++)
-            if (abs(p_matrixA[i_index] - p_matrixB[i_index]) > FLT_EPSILON) return true;
+            if (!isZero(p_matrixA[i_index] - p_matrixB[i_index])) return true;
         return false;
     }
 

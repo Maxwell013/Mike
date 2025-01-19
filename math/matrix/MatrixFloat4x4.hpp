@@ -3,8 +3,9 @@
 
 #include <iomanip>
 
-#include "VectorFloat3.hpp"
-#include "trigonometryFloat.hpp"
+#include "../vector/VectorFloat3.hpp"
+#include "../trigonometryFloat.hpp"
+#include "Mike/math/scalarFloat.hpp"
 
 namespace math {
 
@@ -99,24 +100,24 @@ namespace math {
         }
 
         static MatrixFloat4x4 Rotation(const float p_r, const VectorFloat3& p_axis) {
-            VectorFloat3 unit = p_axis.normalized();
-            float x = unit.x;
-            float y = unit.y;
-            float z = unit.z;
-            float s = sin(p_r);
-            float c = cos(p_r);
+            const VectorFloat3 unit = p_axis.normalized();
+            const float x = unit.x;
+            const float y = unit.y;
+            const float z = unit.z;
+            const float s = sin(p_r);
+            const float c = cos(p_r);
             return MatrixFloat4x4((float[16]) {
-                (c+x*x*(1-c))  , (x*y*(1-c)-z*s), (x*z*(1-c)-y*s), 0.0f,
-                (y*x*(1-c)+z*s), (c+y*y*(1-c))  , (y*z*(1-c)-x*s), 0.0f,
-                (z*x*(1-c)-y*s), (z*y*(1-c)+x*s), (c+z*z*(1-c))  , 0.0f,
+                (c+x*x*(1-c))  , (y*x*(1-c)+z*s), (z*x*(1-c)+y*s), 0.0f,
+                (x*y*(1-c)-z*s), (c+y*y*(1-c))  , (z*y*(1-c)+x*s), 0.0f,
+                (x*z*(1-c)-y*s), (y*z*(1-c)-x*s), (c+z*z*(1-c))  , 0.0f,
                 0.0f           , 0.0f           , 0.0f           , 1.0f
             });
         }
 
         static MatrixFloat4x4 Ortho(const float p_left, const float p_right, const float p_bottom, const float p_top, const float p_near, const float p_far) {
-            float rl = p_right-p_left;
-            float tb = p_top-p_bottom;
-            float fn = p_far-p_near;
+            const float rl = p_right-p_left;
+            const float tb = p_top-p_bottom;
+            const float fn = p_far-p_near;
             return MatrixFloat4x4((float[16]) {
                 (2/rl), 0.0f  , 0.0f  , 0.0f,
                 0.0f  , (2/tb), 0.0f  , 0.0f,
@@ -126,8 +127,8 @@ namespace math {
         }
 
         static MatrixFloat4x4 Perspective(const float p_fov, const float p_aspectRatio, const float p_near, const float p_far) {
-            float t = tan(p_fov/2.0f);
-            float fn = p_far-p_near;
+            const float t = tan(p_fov/2.0f);
+            const float fn = p_far-p_near;
             return MatrixFloat4x4((float[16]) {
                 (1/p_aspectRatio*t), 0.0f ,  0.0f               ,  0.0f,
                 0.0f               , (1/t),  0.0f               ,  0.0f,
@@ -137,9 +138,9 @@ namespace math {
         }
 
         static MatrixFloat4x4 LookAt(const VectorFloat3& p_position, const VectorFloat3& p_target, const VectorFloat3& p_up) {
-            VectorFloat3 direction = (p_position - p_target).normalized();
-            VectorFloat3 right = direction.cross(p_up).normalized();
-            VectorFloat3 up = right.cross(direction);
+            const VectorFloat3 direction = (p_position - p_target).normalized();
+            const VectorFloat3 right = direction.cross(p_up).normalized();
+            const VectorFloat3 up = right.cross(direction);
             return MatrixFloat4x4((float[16]) {
                 right.x, up.x, direction.x, 0.0f,
                 right.y, up.y, direction.y, 0.0f,
@@ -280,7 +281,7 @@ namespace math {
         }
 
         MatrixFloat4x4 adjugate() const {
-            float array[16] = {
+            const float array[16] = {
                 m_array[5] * (m_array[10] * m_array[15] - m_array[11] * m_array[14]) -
                 m_array[6] * (m_array[9] * m_array[15] - m_array[11] * m_array[13]) +
                 m_array[7] * (m_array[9] * m_array[14] - m_array[10] * m_array[13]),
@@ -335,7 +336,7 @@ namespace math {
 
         MatrixFloat4x4 inverse() const {
             const float d = determinant();
-            if (abs(d) <= FLT_EPSILON)
+            if (isZero(d))
                 throw std::overflow_error("Divide by zero exception!");
             return adjugate()/d;
         }
@@ -371,13 +372,13 @@ namespace math {
 
     inline bool operator==(const MatrixFloat4x4& p_matrixA, const MatrixFloat4x4& p_matrixB) {
         for (size_t i_index = 0; i_index < 16; i_index++)
-            if (abs(p_matrixA[i_index] - p_matrixB[i_index]) > FLT_EPSILON) return false;
+            if (!isZero(p_matrixA[i_index] - p_matrixB[i_index])) return false;
         return true;
     }
 
     inline bool operator!=(const MatrixFloat4x4& p_matrixA, const MatrixFloat4x4& p_matrixB) {
         for (size_t i_index = 0; i_index < 16; i_index++)
-            if (abs(p_matrixA[i_index] - p_matrixB[i_index]) > FLT_EPSILON) return true;
+            if (!isZero(p_matrixA[i_index] - p_matrixB[i_index])) return true;
         return false;
     }
 

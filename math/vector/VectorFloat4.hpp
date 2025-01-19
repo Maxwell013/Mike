@@ -3,7 +3,9 @@
 
 #include <iostream>
 
-#include "scalarFloat.hpp"
+#include "VectorFloat2.hpp"
+#include "VectorFloat3.hpp"
+#include "../scalarFloat.hpp"
 
 namespace math {
 
@@ -18,30 +20,44 @@ namespace math {
             float components[4];
         };
 
-        static VectorFloat4 Zero() { return VectorFloat4(0.0f, 0.0f, 0.0f, 0.0f); }
+        static VectorFloat4 Zero() { return VectorFloat4(0.0f); }
         static VectorFloat4 X() { return VectorFloat4(1.0f, 0.0f, 0.0f, 0.0f); }
         static VectorFloat4 Y() { return VectorFloat4(0.0f, 1.0f, 0.0f, 0.0f); }
         static VectorFloat4 Z() { return VectorFloat4(0.0f, 0.0f, 1.0f, 0.0f); }
         static VectorFloat4 W() { return VectorFloat4(0.0f, 0.0f, 0.0f, 1.0f); }
 
         static VectorFloat4 Right() { return X(); }
-        static VectorFloat4 Left() { return Zero() - X(); }
+        static VectorFloat4 Left() { return -X(); }
         static VectorFloat4 Up() { return Y(); }
-        static VectorFloat4 Down() { return Zero() - Y(); }
+        static VectorFloat4 Down() { return -Y(); }
         static VectorFloat4 Foward() { return Z(); }
-        static VectorFloat4 Backward() { return Zero() - Z(); }
+        static VectorFloat4 Backward() { return -Z(); }
 
-        VectorFloat4(const float p_x = 0.0f, const float p_y = 0.0f, const float p_z = 0.0f, const float p_w = 1.0f) : x(p_x), y(p_y), z(p_z), w(p_w) {}
+        VectorFloat4() : x(0.0f), y(0.0f), z(0.0f), w(1.0f) {}
+
+        VectorFloat4(const float p_float) : x(p_float), y(p_float), z(p_float), w(p_float) {}
+
+        VectorFloat4(const float p_x, const float p_y, const float p_z, const float p_w) : x(p_x), y(p_y), z(p_z), w(p_w) {}
 
         VectorFloat4(const VectorFloat4& p_vector) : x(p_vector.x), y(p_vector.y), z(p_vector.z), w(p_vector.w) {}
 
-        ~VectorFloat4() {}
+        VectorFloat4(const VectorFloat3& p_vector, const float p_w = 1.0f) : x(p_vector.x), y(p_vector.y), z(p_vector.z), w(p_w) {}
+
+        VectorFloat4(const VectorFloat2& p_vector, const float p_z, const float p_w = 1.0f) : x(p_vector.x), y(p_vector.y), z(p_z), w(p_w) {}
 
         VectorFloat4& operator=(const VectorFloat4& p_vector) {
             x = p_vector.x;
             y = p_vector.y;
             z = p_vector.z;
             w = p_vector.w;
+            return *this;
+        }
+
+        VectorFloat4& operator=(const VectorFloat3& p_vector) {
+            x = p_vector.x;
+            y = p_vector.y;
+            z = p_vector.z;
+            w = 1.0f;
             return *this;
         }
 
@@ -81,7 +97,7 @@ namespace math {
             return *this;
         }
 
-        VectorFloat4 operator*(const VectorFloat4 p_vector) const {
+        VectorFloat4 operator*(const VectorFloat4& p_vector) const {
             return VectorFloat4(
                 x * p_vector.x,
                 y * p_vector.y,
@@ -90,7 +106,7 @@ namespace math {
             );
         }
 
-        VectorFloat4& operator*=(const VectorFloat4 p_vector) {
+        VectorFloat4& operator*=(const VectorFloat4& p_vector) {
             x *= p_vector.x;
             y *= p_vector.y;
             z *= p_vector.z;
@@ -112,6 +128,23 @@ namespace math {
             y *= p_float;
             z *= p_float;
             w *= p_float;
+            return *this;
+        }
+
+        VectorFloat4 operator/(const VectorFloat4& p_vector) const {
+            return VectorFloat4(
+                x / p_vector.x,
+                y / p_vector.y,
+                z / p_vector.z,
+                w / p_vector.w
+            );
+        }
+
+        VectorFloat4& operator/=(const VectorFloat4& p_vector) {
+            x /= p_vector.x;
+            y /= p_vector.y;
+            z /= p_vector.z;
+            w /= p_vector.w;
             return *this;
         }
 
@@ -160,8 +193,8 @@ namespace math {
         }
 
         VectorFloat4 normalized() const {
-            float m = magnitude();
-            if (m <= FLT_EPSILON) return VectorFloat4(0, 0, 0, 0);
+            const float m = magnitude();
+            if (isZero(m)) return VectorFloat4(0, 0, 0, 0);
             return VectorFloat4(
                 x / m,
                 y / m,
@@ -171,8 +204,8 @@ namespace math {
         }
 
         VectorFloat4& normalize() {
-            float m = magnitude();
-            if (m <= FLT_EPSILON) {
+            const float m = magnitude();
+            if (isZero(m)) {
                 x = 0; y = 0; z = 0; w = 0;
             } else {
                 x /= m;
@@ -182,23 +215,32 @@ namespace math {
             }
             return *this;
         }
+
+        float distance(const VectorFloat4& p_vector) const {
+            return VectorFloat4(
+                x - p_vector.x,
+                y - p_vector.y,
+                z - p_vector.z,
+                w - p_vector.w
+            ).magnitude();
+        }
     };
 
     inline bool operator==(const VectorFloat4& p_vectorA, const VectorFloat4& p_vectorB) {
         return (
-            abs(p_vectorA.x - p_vectorB.x) <= FLT_EPSILON &&
-            abs(p_vectorA.y - p_vectorB.y) <= FLT_EPSILON &&
-            abs(p_vectorA.z - p_vectorB.z) <= FLT_EPSILON &&
-            abs(p_vectorA.w - p_vectorB.w) <= FLT_EPSILON
+            isZero(p_vectorA.x - p_vectorB.x) &&
+            isZero(p_vectorA.y - p_vectorB.y) &&
+            isZero(p_vectorA.z - p_vectorB.z) &&
+            isZero(p_vectorA.w - p_vectorB.w)
         );
     }
 
-    inline bool operator!=(const VectorFloat4 &p_vectorA, const VectorFloat4 &p_vectorB) {
+    inline bool operator!=(const VectorFloat4& p_vectorA, const VectorFloat4& p_vectorB) {
         return (
-            abs(p_vectorA.x - p_vectorB.x) > FLT_EPSILON ||
-            abs(p_vectorA.y - p_vectorB.y) > FLT_EPSILON ||
-            abs(p_vectorA.z - p_vectorB.z) > FLT_EPSILON ||
-            abs(p_vectorA.w - p_vectorB.w) > FLT_EPSILON
+            !isZero(p_vectorA.x - p_vectorB.x) ||
+            !isZero(p_vectorA.y - p_vectorB.y) ||
+            !isZero(p_vectorA.z - p_vectorB.z) ||
+            !isZero(p_vectorA.w - p_vectorB.w)
         );
     }
 

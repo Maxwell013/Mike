@@ -22,6 +22,10 @@ namespace math {
         return * (float *) &value;
     }
 
+    constexpr inline bool isZero(const float p_value) {
+        return abs(p_value) <= FLT_EPSILON;
+    }
+
     constexpr inline float sign(const float p_value) { return (p_value != 0) ? p_value/abs(p_value) : 0; }
 
     constexpr inline float lerp(const float p_value, const float p_target, const float p_fraction) {

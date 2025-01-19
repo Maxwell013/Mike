@@ -3,8 +3,9 @@
 
 #include <iomanip>
 
-#include "VectorFloat2.hpp"
-#include "trigonometryFloat.hpp"
+#include "../vector/VectorFloat2.hpp"
+#include "../trigonometryFloat.hpp"
+#include "Mike/math/scalarFloat.hpp"
 
 namespace math {
 
@@ -183,7 +184,7 @@ namespace math {
         }
 
         MatrixFloat3x3 adjugate() const {
-            float array[9] = {
+            const float array[9] = {
                 m_array[4] * m_array[8] - m_array[5] * m_array[7],
                 m_array[3] * m_array[8] - m_array[5] * m_array[6],
                 m_array[3] * m_array[7] - m_array[4] * m_array[6],
@@ -199,7 +200,7 @@ namespace math {
 
         MatrixFloat3x3 inverse() const {
             const float d = determinant();
-            if (abs(d) <= FLT_EPSILON)
+            if (isZero(d))
                 throw std::overflow_error("Divide by zero exception!");
             return adjugate()/d;
         }
@@ -235,13 +236,13 @@ namespace math {
 
     inline bool operator==(const MatrixFloat3x3& p_matrixA, const MatrixFloat3x3& p_matrixB) {
         for (size_t i_index = 0; i_index < 9; i_index++)
-            if (abs(p_matrixA[i_index] - p_matrixB[i_index]) > FLT_EPSILON) return false;
+            if (!isZero(p_matrixA[i_index] - p_matrixB[i_index])) return false;
         return true;
     }
 
     inline bool operator!=(const MatrixFloat3x3& p_matrixA, const MatrixFloat3x3& p_matrixB) {
         for (size_t i_index = 0; i_index < 9; i_index++)
-            if (abs(p_matrixA[i_index] - p_matrixB[i_index]) > FLT_EPSILON) return true;
+            if (!isZero(p_matrixA[i_index] - p_matrixB[i_index])) return true;
         return false;
     }
 

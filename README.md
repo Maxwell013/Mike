@@ -1,20 +1,63 @@
-# Math
+# Mike
 A lightweight math library for C++
 
-## Version Alpha 0.5
-This library is under heavy development and is not functional for the time being.
+This library is part of a long term project that aims to build a small game engine and break it down into various smaller projects.
+This is the second library and is still under development.
+
+## Version 0.1.0 - Beta release
+- Major: Development
+- Minor: Beta release
+- Patch: Beta release
+
+## Features
+- Header only implementation
+- Float vector classes (vecf2, vecf3, vecf4)
+- Float matrix classes (matf2x2, matf3x3, matf4x4)
+- Utility functions for floats (clamp, lerp, round, sqrt)
+- Trigonometry functions for floats (radians, degrees, sin, cos, tan)
+
+- (Development) Float Segment classes
+
+## Usage
+To get started with Mike, copy the `mike.hpp` file and the entire `math` directory from the repository and add it to your project.
+Include the header files to your cpp files and use the any of the classes from the example bellow!
+
+Example:
+```C++
+// test.cpp
+
+#include "math/trigonometryFloat.hpp"
+#include "mike.hpp"
+
+math::mat4 camera(const float p_translate, const math::vec2& p_rotate) {
+    math::mat4 projection = math::mat4::Perspective(math::HALF_PI, 4.0f / 3.0f, 1.0f, 100.f);
+
+    math::mat4 view = math::mat4::Translation(0.0f, 0.0f, -p_translate);
+    view = view * math::mat4::RotationY(p_rotate.y);
+    view = view * math::mat4::RotationX(p_rotate.x);
+
+    math::mat4 model = math::mat4::Scale(0.5f);
+
+    return projection * view * model;
+}
+```
 
 ## Todo
-- geometry
-  - point, line, triangle, sphere, AABB, OBB
-  - distance and intersections for all shapes
-
-- Quaternion
+- Segment intersections
+- Geometry
+  - 2D: line, triangle, circle, square
+  - 3D: line, plane, sphere, cube
+  - AABB, OBB, distance
+- Quaternions
 - SIMD instructions
-- veci2, veci3, veci4
-- mati2, mati3, mati4
+- Int vectors
+- Int matrices
 
 ## Changelog
+
+### Version 0.1.0 - Beta release
+- Changed the naming and branding of the library
+- Changed class implementations for release
 
 ### Version Alpha 0.5
 - Added basic scalar utility functions
