@@ -1,5 +1,5 @@
 # Mike
-A lightweight math library for C++
+A lightweight math library for C++.
 
 This library is part of a long term project that aims to build a small game engine and break it down into various smaller projects.
 This is the second library and is still under development.
